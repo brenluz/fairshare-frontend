@@ -1,0 +1,31 @@
+<div class="min-h-screen bg-canvas flex justify-center">
+  <div class="w-full max-w-[420px] flex flex-col">
+
+    <!-- Dark header (placeholder for the full 3b design) -->
+    <div class="bg-ink-dark rounded-b-[30px] px-5 pt-12 pb-6 flex items-center gap-3">
+      <div class="flex-1">
+        <h1 class="text-[22px] font-extrabold tracking-[-0.02em] text-canvas">Groups</h1>
+        <p class="text-[13px] font-medium text-faint mt-0.5">
+          Signed in as {{ user()?.username }}
+        </p>
+      </div>
+      <div class="w-[38px] h-[38px] rounded-full bg-accent text-white flex items-center justify-center text-[13px] font-bold">
+        {{ (user()?.username ?? '?').slice(0, 2).toUpperCase() }}
+      </div>
+    </div>
+
+    <div class="px-5 py-8">
+      <p class="text-[14.5px] font-medium text-muted">
+        Login works — the groups list (design <b class="text-ink">3b</b>) goes here next.
+      </p>
+
+      <button
+        type="button"
+        (click)="logout()"
+        class="mt-6 h-[52px] w-full rounded-[16px] bg-surface border border-border-strong text-ink text-[15px] font-bold"
+      >
+        Log out
+      </button>
+    </div>
+  </div>
+</div>

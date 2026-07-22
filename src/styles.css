@@ -1,3 +1,169 @@
 /* You can add global styles to this file, and also import other style files */
 
 @import 'tailwindcss';
+
+/*
+  FairShare design tokens — see the design handoff README.
+  In Tailwind v4, each --color-* here generates matching utilities:
+  e.g. --color-canvas → bg-canvas / text-canvas / border-canvas.
+*/
+@theme {
+  /* Font — Plus Jakarta Sans is loaded in index.html */
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  /* Surfaces & text */
+  --color-canvas: #f6f5f1; /* warm off-white app background */
+  --color-surface: #ffffff; /* cards, rows, inputs */
+  --color-ink: #17170f; /* primary text */
+  --color-ink-dark: #181712; /* dark headers / amount heroes */
+  --color-muted: #8a8a80; /* secondary text */
+  --color-muted-2: #6b6b63; /* tertiary / labels */
+  --color-faint: #a8a69c; /* captions on light; labels on dark */
+
+  /* Lines */
+  --color-border-soft: #efede7; /* card borders */
+  --color-border: #ebe9e3; /* input borders (default) */
+  --color-border-strong: #e4e2db; /* secondary button border */
+  --color-divider: #f1efe9; /* hairline dividers inside cards */
+  --color-chip: #eae8e2; /* segmented track, inactive chips */
+
+  /* Accent (indigo) — the single action color */
+  --color-accent: #5a50e6;
+  --color-accent-soft-bg: #eeedfb;
+  --color-accent-soft-border: #dedaf7;
+  --color-accent-soft-text: #3a348c;
+
+  /* Balance semantics ONLY (never buttons/chrome) */
+  --color-positive: #0e7c5a; /* owed to you, on light */
+  --color-positive-dark: #5fe0ac; /* owed to you, on dark */
+  --color-positive-soft-bg: #e4f4ec;
+  --color-positive-soft-border: #cde9da;
+  --color-negative: #c24a3e; /* you owe, on light */
+  --color-negative-dark: #f0a69c; /* you owe, on dark */
+
+  /* Per-member avatar colors (deterministic) */
+  --color-member-maya: #6d62e8;
+  --color-member-theo: #e0a25a;
+  --color-member-priya: #c77fa6;
+  --color-member-sam: #5fa487;
+
+  /* Radii */
+  --radius-control: 16px; /* buttons, inputs */
+  --radius-card: 20px; /* cards */
+  --radius-card-lg: 24px;
+  --radius-sheet: 28px; /* bottom sheets (top corners) */
+  --radius-header: 30px; /* dark header bottom corners */
+
+  /* Shadows */
+  --shadow-card: 0 2px 16px rgba(24, 24, 40, 0.05);
+  --shadow-list: 0 2px 14px rgba(24, 24, 40, 0.04);
+  --shadow-glow: 0 10px 24px -6px #5a50e6; /* primary button glow */
+  --shadow-sheet: 0 -12px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* App-wide base */
+html,
+body {
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* All monetary figures align on tabular figures */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/*
+  Shared control styles from the design system (buttons, inputs, labels).
+  In the `components` layer so plain Tailwind utilities can still override them.
+*/
+@layer components {
+  .fs-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-muted);
+    padding: 0 4px 7px;
+  }
+
+  /* Plain input (no trailing affordance) */
+  .fs-input {
+    width: 100%;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 15px;
+    padding: 15px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .fs-input::placeholder {
+    color: var(--color-faint);
+  }
+  .fs-input:focus {
+    outline: none;
+    border: 1.5px solid var(--color-accent);
+  }
+
+  /* Input wrapper for fields with a trailing control (e.g. password "Show") */
+  .fs-field {
+    display: flex;
+    align-items: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 15px;
+    padding: 15px 16px;
+  }
+  .fs-field:focus-within {
+    border: 1.5px solid var(--color-accent);
+  }
+  .fs-field input {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: 0;
+    outline: none;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+  .fs-field input::placeholder {
+    color: var(--color-faint);
+  }
+
+  .fs-btn-primary {
+    width: 100%;
+    height: 54px;
+    border-radius: 16px;
+    background: var(--color-accent);
+    color: #fff;
+    font-size: 15.5px;
+    font-weight: 800;
+    box-shadow: var(--shadow-glow);
+  }
+  .fs-btn-primary:disabled {
+    opacity: 0.5;
+  }
+
+  .fs-btn-secondary {
+    width: 100%;
+    height: 52px;
+    border-radius: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-strong);
+    color: var(--color-ink);
+    font-size: 15px;
+    font-weight: 700;
+  }
+
+  /* Inline field/form validation message */
+  .fs-error {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-negative);
+    margin-top: 6px;
+    padding: 0 4px;
+  }
+}

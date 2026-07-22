@@ -1,0 +1,27 @@
+<div class="flex items-center" [style.gap.px]="size() >= 44 ? 11 : 10">
+  <div
+    class="bg-accent flex items-center justify-center shadow-[0_8px_20px_-6px_#5a50e6]"
+    [style.width.px]="size()"
+    [style.height.px]="size()"
+    [style.borderRadius.px]="radius()"
+  >
+    <div class="flex items-end" [style.gap.px]="barGap()">
+      <span
+        class="bg-white rounded-[2px]"
+        [style.width.px]="barWidth()"
+        [style.height.px]="shortBar()"
+      ></span>
+      <span
+        class="bg-white rounded-[2px]"
+        [style.width.px]="barWidth()"
+        [style.height.px]="tallBar()"
+      ></span>
+      <span
+        class="bg-white/60 rounded-[2px]"
+        [style.width.px]="barWidth()"
+        [style.height.px]="midBar()"
+      ></span>
+    </div>
+  </div>
+  <span class="font-extrabold tracking-[-0.02em]" [style.fontSize.px]="wordSize()">FairShare</span>
+</div>

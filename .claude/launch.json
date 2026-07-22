@@ -1,0 +1,20 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fairshare",
+      "runtimeExecutable": "fnm",
+      "runtimeArgs": [
+        "exec",
+        "--using=24.18.0",
+        "--",
+        "node",
+        "node_modules/@angular/cli/bin/ng.js",
+        "serve",
+        "--port",
+        "4200"
+      ],
+      "port": 4200
+    }
+  ]
+}
