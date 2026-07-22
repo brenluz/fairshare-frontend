@@ -4,6 +4,8 @@ import { AuthService } from '../../services/auth.service';
 import { GroupsService } from '../../services/groups.service';
 import { GroupListItem } from '../../models/group.model';
 import { serviceErrorMessage } from '../../shared/api-error';
+import { avatarGradient, initial, initials } from '../../shared/avatar';
+import { isZero, signedEuro } from '../../shared/money';
 
 type Filter = 'all' | 'active' | 'settled';
 
@@ -24,7 +26,7 @@ export class Groups {
   filter = signal<Filter>('all');
 
   /** A group is "settled" when the current user's net balance is zero. */
-  private settled = (g: GroupListItem) => Math.abs(g.balance) < 0.005;
+  private settled = (g: GroupListItem) => isZero(g.balance);
 
   settledCount = computed(() => this.groups().filter(this.settled).length);
 
@@ -71,38 +73,15 @@ export class Groups {
     return this.settled(group);
   }
 
-  /** Signed euro amount, e.g. "+€240.00" / "−€85.50" (true minus sign). */
-  formatBalance(value: number): string {
-    const sign = value > 0 ? '+' : value < 0 ? '−' : '';
-    return `${sign}€${Math.abs(value).toFixed(2)}`;
-  }
-
   balanceLabel(value: number): string {
     return value > 0 ? 'owed' : 'you owe';
   }
 
-  initial(name: string): string {
-    return (name.trim()[0] ?? '?').toUpperCase();
-  }
-
-  avatarInitials(name: string | undefined): string {
-    return (name ?? '?').slice(0, 2).toUpperCase();
-  }
-
-  /** Deterministic gradient per group, so a group looks the same everywhere. */
-  gradientFor(name: string): string {
-    const pairs = [
-      ['#6D62E8', '#8E86F0'],
-      ['#E0A25A', '#EDBE84'],
-      ['#C77FA6', '#DAA1C0'],
-      ['#5FA487', '#83C0A6'],
-      ['#5A50E6', '#8079EE'],
-    ];
-    let hash = 0;
-    for (const ch of name) hash = (hash + ch.charCodeAt(0)) % pairs.length;
-    const [from, to] = pairs[hash];
-    return `linear-gradient(135deg, ${from}, ${to})`;
-  }
+  // Shared visual/format helpers, re-exported for the template.
+  formatBalance = signedEuro;
+  gradientFor = avatarGradient;
+  initial = initial;
+  avatarInitials = initials;
 
   open(group: GroupListItem): void {
     this.router.navigate(['/groups', group.id]);

@@ -1,0 +1,238 @@
+<div class="min-h-screen bg-canvas flex justify-center">
+  <div class="w-full max-w-[420px] min-h-screen flex flex-col relative">
+
+    @if (loading()) {
+      <p class="text-[14px] font-medium text-muted mt-20 text-center">Loading group…</p>
+    } @else if (error()) {
+      <div class="mt-20 px-5 text-center">
+        <p class="text-[14px] font-semibold text-negative">{{ error() }}</p>
+        <button type="button" (click)="load()" class="fs-btn-secondary mt-4">Try again</button>
+      </div>
+    } @else if (group(); as g) {
+
+      <!-- 1. Dark summary header -->
+      <div class="bg-ink-dark rounded-b-[30px] px-[18px] pt-12 pb-6">
+        <div class="flex items-center gap-3">
+          <button
+            type="button"
+            (click)="back()"
+            class="w-9 h-9 rounded-full bg-white/10 text-canvas flex items-center justify-center text-[17px] shrink-0"
+            aria-label="Back"
+          >
+            ‹
+          </button>
+          <h1 class="flex-1 min-w-0 text-[17px] font-extrabold text-canvas truncate">{{ g.name }}</h1>
+          <button
+            type="button"
+            class="w-9 h-9 rounded-full bg-white/10 text-canvas flex items-center justify-center text-[15px] shrink-0"
+            aria-label="More options"
+          >
+            ⋯
+          </button>
+        </div>
+
+        <!-- Total + member stack -->
+        <div class="flex items-end justify-between mt-5">
+          <div>
+            <div class="text-[12.5px] font-semibold text-faint">Total group spend</div>
+            <div class="text-[32px] font-extrabold tracking-[-0.02em] text-canvas tabular mt-1">
+              {{ euro(totalSpend()) }}
+            </div>
+          </div>
+          <div class="flex">
+            @for (m of g.members; track m.id) {
+              <div
+                class="w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-[11.5px] font-bold border-2 border-ink-dark -ml-[10px] first:ml-0"
+                [style.background]="avatarColor(m.email)"
+                [title]="m.username"
+              >
+                {{ initials(m.username) }}
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Your balance pill -->
+        <div class="mt-4 rounded-[16px] bg-white/10 px-4 py-3 flex items-center gap-2.5">
+          <span
+            class="w-2 h-2 rounded-full shrink-0"
+            [style.background]="myBalance() >= 0 ? '#5FE0AC' : '#F0A69C'"
+            [style.boxShadow]="
+              (myBalance() >= 0 ? '0 0 0 4px rgba(95,224,172,.18)' : '0 0 0 4px rgba(240,166,156,.18)')
+            "
+          ></span>
+          <span class="text-[13px] font-semibold text-faint flex-1">Your balance</span>
+          @if (isZero(myBalance())) {
+            <span class="text-[15px] font-extrabold text-canvas tabular">Settled</span>
+          } @else {
+            <span
+              class="text-[15px] font-extrabold tabular"
+              [style.color]="myBalance() > 0 ? '#5FE0AC' : '#F0A69C'"
+            >
+              {{ signedEuro(myBalance()) }}
+            </span>
+            <span class="text-[12px] font-semibold text-faint">
+              {{ myBalance() > 0 ? 'owed to you' : 'you owe' }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <div class="flex-1 pb-32">
+
+        <!-- 2. Member balances -->
+        <h2 class="text-[13px] font-extrabold px-5 mt-6">Member balances</h2>
+        <div class="flex gap-2.5 overflow-x-auto px-5 mt-3 pb-1">
+          @for (b of balances(); track b.user.id) {
+            <div
+              class="w-[112px] shrink-0 rounded-[16px] bg-surface p-3"
+              [class]="isMe(b.user.email) ? 'border-[1.5px] border-accent' : 'border border-border-soft'"
+            >
+              <div
+                class="w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-[11.5px] font-bold"
+                [style.background]="avatarColor(b.user.email)"
+              >
+                {{ initials(b.user.username) }}
+              </div>
+              <div class="text-[13px] font-bold truncate mt-2">
+                {{ isMe(b.user.email) ? 'You' : b.user.username }}
+              </div>
+              @if (isZero(b.balance)) {
+                <div class="text-[16px] font-extrabold text-muted tabular mt-0.5">€0.00</div>
+                <div class="text-[11.5px] font-semibold text-muted">settled</div>
+              } @else {
+                <div
+                  class="text-[16px] font-extrabold tabular mt-0.5"
+                  [class]="b.balance > 0 ? 'text-positive' : 'text-negative'"
+                >
+                  {{ signedEuro(b.balance) }}
+                </div>
+                <div class="text-[11.5px] font-semibold text-muted">{{ balanceWord(b.balance) }}</div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- 3. Suggested payments -->
+        @if (transfers().length > 0) {
+          <div class="flex items-baseline justify-between px-5 mt-7">
+            <h2 class="text-[13px] font-extrabold">Suggested payments</h2>
+            <span class="text-[11.5px] font-semibold text-muted">Fewest transfers</span>
+          </div>
+
+          <div class="mx-5 mt-3 rounded-[20px] bg-ink px-4">
+            @for (t of transfers(); track $index) {
+              <div
+                class="flex items-center gap-3 py-3.5 border-b border-white/8 last:border-b-0"
+                [class.opacity-50]="!involvesMe(t)"
+              >
+                <div class="flex items-center gap-1 shrink-0">
+                  <div
+                    class="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
+                    [style.background]="avatarColor(t.from.email)"
+                  >
+                    {{ initials(t.from.username) }}
+                  </div>
+                  <span class="text-white/40 text-[13px]">→</span>
+                  <div
+                    class="w-7 h-7 rounded-full flex items-center justify-center text-white text-[10px] font-bold"
+                    [style.background]="avatarColor(t.to.email)"
+                  >
+                    {{ initials(t.to.username) }}
+                  </div>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                  <div class="text-[13.5px] font-bold text-canvas truncate">{{ transferLabel(t) }}</div>
+                </div>
+
+                <div class="text-[14px] font-extrabold text-canvas tabular shrink-0">
+                  {{ euro(t.amount) }}
+                </div>
+
+                @if (involvesMe(t)) {
+                  <button
+                    type="button"
+                    class="rounded-full bg-positive-dark text-ink px-3 py-1.5 text-[12px] font-extrabold shrink-0"
+                  >
+                    Settle
+                  </button>
+                } @else {
+                  <button
+                    type="button"
+                    class="rounded-full border border-white/25 text-canvas px-3 py-1.5 text-[12px] font-bold shrink-0"
+                  >
+                    Remind
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        <!-- 4. Activity -->
+        <h2 class="text-[13px] font-extrabold px-5 mt-7">Activity</h2>
+
+        @if (expenses().length === 0) {
+          <p class="text-[14px] font-medium text-muted px-5 mt-3">
+            No expenses yet — add the first one below.
+          </p>
+        }
+
+        @for (bucket of expenseGroups(); track bucket.label) {
+          <div class="px-5 mt-4">
+            <div class="text-[11.5px] font-bold text-muted uppercase tracking-[0.05em]">
+              {{ bucket.label }}
+            </div>
+
+            @for (e of bucket.items; track e.id) {
+              <div class="flex items-center gap-3 py-3 border-b border-divider last:border-b-0">
+                <!-- Date chip -->
+                <div class="w-11 h-11 rounded-[13px] bg-chip flex flex-col items-center justify-center shrink-0">
+                  <span class="text-[9.5px] font-bold text-muted-2 uppercase leading-none">
+                    {{ monthOf(e.createdAt) }}
+                  </span>
+                  <span class="text-[15px] font-extrabold leading-tight">{{ dayOf(e.createdAt) }}</span>
+                </div>
+
+                <div class="flex-1 min-w-0">
+                  <div class="text-[15px] font-extrabold truncate">{{ e.description }}</div>
+                  <div class="text-[12px] font-semibold text-muted mt-0.5 truncate">
+                    {{ isMe(e.paidBy.email) ? 'You' : e.paidBy.username }} ·
+                    {{ splitLabel(e.splitType) }}
+                  </div>
+                </div>
+
+                <div class="text-right shrink-0">
+                  <div class="text-[15px] font-extrabold tabular">{{ euro(e.amount) }}</div>
+                  @if (!isZero(impact(e))) {
+                    <div
+                      class="text-[12px] font-bold tabular mt-0.5"
+                      [class]="impact(e) > 0 ? 'text-positive' : 'text-negative'"
+                    >
+                      {{ signedEuro(impact(e)) }}
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- 5. Floating action bar -->
+      <div class="sticky bottom-0 px-5 pb-6 pt-8 bg-gradient-to-t from-canvas via-canvas to-transparent">
+        <div class="flex gap-[11px]">
+          <button
+            type="button"
+            class="w-[52px] h-[52px] rounded-[16px] bg-surface border border-border-strong text-ink text-[18px] shrink-0"
+            aria-label="Settle up"
+          >
+            ⇄
+          </button>
+          <button type="button" class="fs-btn-primary flex-1">+ Add expense</button>
+        </div>
+      </div>
+    }
+  </div>
+</div>
