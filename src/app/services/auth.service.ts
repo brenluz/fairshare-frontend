@@ -2,11 +2,12 @@ import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { tap } from 'rxjs';
 import { AuthResponse, CurrentUser, LoginRequest, RegisterRequest } from '../models/auth.model';
+import { API_BASE } from '../shared/api';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8080/api/auth';
+  private readonly baseUrl = `${API_BASE}/auth`;
 
   private currentUserSig = signal<CurrentUser | null>(this.loadUser());
 
