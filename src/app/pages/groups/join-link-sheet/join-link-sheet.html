@@ -1,0 +1,40 @@
+<div class="fixed inset-0 z-50 flex justify-center">
+  <div class="absolute inset-0 bg-black/40" (click)="close()"></div>
+
+  <div class="relative w-full max-w-[420px] h-full flex flex-col justify-end pointer-events-none">
+    <div class="relative bg-canvas rounded-t-[28px] shadow-sheet flex flex-col pointer-events-auto">
+      <div class="w-10 h-[5px] rounded-full bg-[#D6D4CC] mx-auto mt-3 mb-1 shrink-0"></div>
+
+      <div class="flex items-center gap-3 px-[18px] py-2 shrink-0">
+        <h2 class="flex-1 text-[17px] font-extrabold">Join with a link</h2>
+        <button
+          type="button"
+          (click)="close()"
+          class="w-[30px] h-[30px] rounded-full bg-chip text-muted-2 flex items-center justify-center text-[13px]"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="px-[18px] pt-3">
+        <label class="fs-label">Invite link</label>
+        <input
+          [value]="linkText()"
+          (input)="linkText.set($any($event.target).value); error.set(null)"
+          placeholder="Paste the invite link"
+          class="fs-input"
+        />
+        @if (error()) {
+          <p class="fs-error">{{ error() }}</p>
+        }
+      </div>
+
+      <div class="px-[18px] pt-4 pb-6 shrink-0">
+        <button type="button" (click)="continue()" [disabled]="!canContinue()" class="fs-btn-primary">
+          Continue
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

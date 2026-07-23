@@ -1,0 +1,52 @@
+<div class="fixed inset-0 z-50 flex justify-center">
+  <div class="absolute inset-0 bg-black/40" (click)="close()"></div>
+
+  <div class="relative w-full max-w-[420px] h-full flex flex-col justify-end pointer-events-none">
+    <div class="relative bg-canvas rounded-t-[28px] shadow-sheet flex flex-col pointer-events-auto">
+      <div class="w-10 h-[5px] rounded-full bg-[#D6D4CC] mx-auto mt-3 mb-1 shrink-0"></div>
+
+      <div class="flex items-center gap-3 px-[18px] py-2 shrink-0">
+        <h2 class="flex-1 text-[17px] font-extrabold">New group</h2>
+        <button
+          type="button"
+          (click)="close()"
+          class="w-[30px] h-[30px] rounded-full bg-chip text-muted-2 flex items-center justify-center text-[13px]"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="px-[18px] pt-3 flex flex-col gap-[13px]">
+        <div>
+          <label class="fs-label">Group name</label>
+          <input
+            [value]="name()"
+            (input)="name.set($any($event.target).value)"
+            placeholder="Lisbon Trip 2026"
+            class="fs-input"
+          />
+        </div>
+        <div>
+          <label class="fs-label">Description <span class="text-faint font-semibold">(optional)</span></label>
+          <input
+            [value]="description()"
+            (input)="description.set($any($event.target).value)"
+            placeholder="Flights, hotel, dinners…"
+            class="fs-input"
+          />
+        </div>
+
+        @if (error()) {
+          <p class="fs-error">{{ error() }}</p>
+        }
+      </div>
+
+      <div class="px-[18px] pt-4 pb-6 shrink-0">
+        <button type="button" (click)="save()" [disabled]="!canSave()" class="fs-btn-primary">
+          {{ submitting() ? 'Creating…' : 'Create group' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

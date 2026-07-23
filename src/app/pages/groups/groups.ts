@@ -6,11 +6,14 @@ import { GroupListItem } from '../../models/group.model';
 import { serviceErrorMessage } from '../../shared/api-error';
 import { avatarGradient, initial, initials } from '../../shared/avatar';
 import { isZero, signedEuro } from '../../shared/money';
+import { CreateGroupSheet } from './create-group-sheet/create-group-sheet';
+import { JoinLinkSheet } from './join-link-sheet/join-link-sheet';
 
 type Filter = 'all' | 'active' | 'settled';
 
 @Component({
   selector: 'app-groups',
+  imports: [CreateGroupSheet, JoinLinkSheet],
   templateUrl: './groups.html',
 })
 export class Groups {
@@ -24,6 +27,8 @@ export class Groups {
   loading = signal(true);
   error = signal<string | null>(null);
   filter = signal<Filter>('all');
+  showCreate = signal(false);
+  showJoinLink = signal(false);
 
   /** A group is "settled" when the current user's net balance is zero. */
   private settled = (g: GroupListItem) => isZero(g.balance);
@@ -85,6 +90,16 @@ export class Groups {
 
   open(group: GroupListItem): void {
     this.router.navigate(['/groups', group.id]);
+  }
+
+  onGroupCreated(id: string): void {
+    this.showCreate.set(false);
+    this.router.navigate(['/groups', id]); // land in the new (empty) group
+  }
+
+  onJoinToken(token: string): void {
+    this.showJoinLink.set(false);
+    this.router.navigate(['/groups/join', token]);
   }
 
   logout(): void {
