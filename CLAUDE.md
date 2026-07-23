@@ -30,6 +30,7 @@ Groups:
 - `GET /api/groups` → `[{ id, name, memberCount }]`
 - `GET /api/groups/{id}` → `{ id, name, description, createdAt, createdBy: {id,username,email}, members: [{id,username,email}] }`
 - `GET /api/groups/{id}/invite` → invite link as plain text (members only)
+- `GET /api/groups/invite/{token}` → **public** join preview `{ name, memberCount, invitedBy, members: [{username}] }` (no auth; usernames only, no emails/ids)
 - `POST /api/groups/join/{token}` → joins group, returns group detail
 
 Expenses:

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { serviceErrorMessage } from '../../shared/api-error';
 import { Logo } from '../../shared/logo/logo';
@@ -24,6 +24,10 @@ export class Register {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  // An invite flow may pass ?redirect=… to return here after signup (default /groups).
+  private redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/groups';
 
   error = signal<string | null>(null);
   submitting = signal(false);
@@ -45,7 +49,7 @@ export class Register {
     this.error.set(null);
 
     this.auth.register(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigateByUrl('/groups'),
+      next: () => this.router.navigateByUrl(this.redirect),
       error: (err) => {
         this.error.set(registerErrorMessage(err.status));
         this.submitting.set(false);

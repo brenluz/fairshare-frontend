@@ -37,3 +37,11 @@ export interface Balance {
 export interface GroupListItem extends GroupSummary {
   balance: number;
 }
+
+/** GET /api/groups/invite/{token} — public join preview (no emails/ids). */
+export interface GroupInvitePreview {
+  name: string;
+  memberCount: number;
+  invitedBy: string;
+  members: { username: string }[];
+}

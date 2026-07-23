@@ -1,0 +1,127 @@
+<div class="min-h-screen bg-canvas flex justify-center">
+  <div class="w-full max-w-[420px] min-h-screen flex flex-col px-8">
+
+    @if (loading()) {
+      <p class="text-[14px] font-medium text-muted mt-24 text-center">Loading invite…</p>
+    } @else if (error() && !preview()) {
+      <div class="mt-24 text-center">
+        <div class="text-[40px]">🔗</div>
+        <p class="text-[16px] font-bold mt-3">{{ error() }}</p>
+        <button type="button" (click)="notNow()" class="fs-btn-secondary mt-6">Go to FairShare</button>
+      </div>
+    } @else if (preview(); as p) {
+
+      @if (isAuthenticated()) {
+        <!-- 6a — logged-in confirmation -->
+        <div class="pt-4">
+          <button
+            type="button"
+            (click)="notNow()"
+            class="w-[38px] h-[38px] rounded-full bg-surface shadow-card flex items-center justify-center text-[16px]"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="flex-1 flex flex-col items-center text-center pt-5">
+          <div class="text-[13px] font-bold text-accent uppercase tracking-[0.06em]">You're invited</div>
+
+          <div
+            class="w-[88px] h-[88px] rounded-[26px] flex items-center justify-center text-white text-[34px] font-extrabold mt-5 shadow-[0_14px_34px_-10px_rgba(90,80,230,.5)]"
+            [style.background]="avatarGradient(p.name)"
+          >
+            {{ initial(p.name) }}
+          </div>
+
+          <h1 class="text-[26px] font-extrabold tracking-[-0.02em] mt-5">{{ p.name }}</h1>
+          <p class="text-[14.5px] font-medium text-muted mt-1.5 leading-relaxed">
+            {{ p.invitedBy }} invited you to split expenses for this group.
+          </p>
+
+          <!-- members card -->
+          <div class="w-full bg-surface border border-border-soft rounded-[20px] p-[18px] mt-7 shadow-list">
+            <div class="text-[12px] font-bold text-muted uppercase tracking-[0.05em]">
+              {{ p.memberCount }} {{ p.memberCount === 1 ? 'member' : 'members' }} already in
+            </div>
+            <div class="flex items-start justify-center gap-0 mt-3.5 flex-wrap">
+              @for (m of p.members; track $index) {
+                <div class="flex flex-col items-center gap-1.5 w-[72px]">
+                  <div
+                    class="w-11 h-11 rounded-full flex items-center justify-center text-white text-[14px] font-bold"
+                    [style.background]="avatarColor(m.username)"
+                  >
+                    {{ initials(m.username) }}
+                  </div>
+                  <span class="text-[11px] font-semibold text-muted-2 truncate max-w-full">
+                    {{ m.username }}
+                  </span>
+                </div>
+              }
+            </div>
+          </div>
+
+          @if (currentUser(); as u) {
+            <div class="text-[13px] font-semibold text-faint mt-4">
+              You'll join as <b class="text-ink">{{ u.username }}</b>
+            </div>
+          }
+        </div>
+
+        @if (error()) {
+          <p class="fs-error text-center">{{ error() }}</p>
+        }
+
+        <div class="pb-9 pt-4 flex flex-col gap-[11px]">
+          <button type="button" (click)="join()" [disabled]="joining()" class="fs-btn-primary">
+            {{ joining() ? 'Joining…' : 'Join group' }}
+          </button>
+          <button type="button" (click)="notNow()" class="h-[52px] text-[14.5px] font-bold text-muted">
+            Not now
+          </button>
+        </div>
+      } @else {
+        <!-- 6c — signed-out invite -->
+        <div class="flex-1 flex flex-col items-center text-center pt-16">
+          <app-logo [size]="38" />
+
+          <div
+            class="w-[84px] h-[84px] rounded-[24px] flex items-center justify-center text-white text-[32px] font-extrabold mt-12 shadow-[0_14px_34px_-10px_rgba(90,80,230,.5)]"
+            [style.background]="avatarGradient(p.name)"
+          >
+            {{ initial(p.name) }}
+          </div>
+
+          <div class="text-[14px] font-bold text-accent mt-6">{{ p.invitedBy }} invited you to</div>
+          <h1 class="text-[25px] font-extrabold tracking-[-0.02em] mt-1.5">{{ p.name }}</h1>
+
+          <!-- member avatar stack -->
+          <div class="flex items-center gap-2 mt-3.5">
+            <div class="flex">
+              @for (m of p.members.slice(0, 5); track $index) {
+                <div
+                  class="w-7 h-7 rounded-full border-2 border-canvas -ml-[7px] first:ml-0"
+                  [style.background]="avatarColor(m.username)"
+                ></div>
+              }
+            </div>
+            <span class="text-[13px] font-semibold text-muted">
+              {{ p.memberCount }} {{ p.memberCount === 1 ? 'member' : 'members' }}
+            </span>
+          </div>
+
+          <p class="text-[14px] font-medium text-muted mt-6 leading-relaxed">
+            Create an account or log in to join the group and start splitting.
+          </p>
+        </div>
+
+        <div class="pb-9 pt-4 flex flex-col gap-[11px]">
+          <button type="button" (click)="signUpAndJoin()" class="fs-btn-primary">Sign up &amp; join</button>
+          <button type="button" (click)="logInAndJoin()" class="fs-btn-secondary">
+            I already have an account
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>

@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { serviceErrorMessage } from '../../shared/api-error';
 import { Logo } from '../../shared/logo/logo';
@@ -19,6 +19,10 @@ export class Login {
   private fb = inject(FormBuilder);
   private auth = inject(AuthService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
+
+  // Where to go after login: an invite flow may pass ?redirect=… (default /groups).
+  private redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/groups';
 
   // UI state for showing a request error and disabling the button mid-flight.
   error = signal<string | null>(null);
@@ -43,7 +47,7 @@ export class Login {
     this.error.set(null);
 
     this.auth.login(this.form.getRawValue()).subscribe({
-      next: () => this.router.navigateByUrl('/groups'),
+      next: () => this.router.navigateByUrl(this.redirect),
       error: (err) => {
         this.error.set(loginErrorMessage(err.status));
         this.submitting.set(false);

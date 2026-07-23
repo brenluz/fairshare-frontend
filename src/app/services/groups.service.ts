@@ -2,7 +2,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
 import { API_BASE } from '../shared/api';
-import { Balance, GroupDetail, GroupListItem, GroupSummary } from '../models/group.model';
+import {
+  Balance,
+  GroupDetail,
+  GroupInvitePreview,
+  GroupListItem,
+  GroupSummary,
+} from '../models/group.model';
 import {
   AddExpenseRequest,
   Expense,
@@ -32,6 +38,16 @@ export class GroupsService {
 
   create(body: { name: string; description: string }): Observable<GroupDetail> {
     return this.http.post<GroupDetail>(this.baseUrl, body);
+  }
+
+  /** Public: preview a group from an invite token, before joining/signing in. */
+  previewInvite(token: string): Observable<GroupInvitePreview> {
+    return this.http.get<GroupInvitePreview>(`${this.baseUrl}/invite/${token}`);
+  }
+
+  /** Join the group behind an invite token (idempotent if already a member). */
+  join(token: string): Observable<GroupDetail> {
+    return this.http.post<GroupDetail>(`${this.baseUrl}/join/${token}`, {});
   }
 
   expenses(id: string): Observable<Expense[]> {
