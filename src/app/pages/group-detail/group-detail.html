@@ -153,6 +153,7 @@
                 @if (involvesMe(t)) {
                   <button
                     type="button"
+                    (click)="openSettle(t)"
                     class="rounded-full bg-positive-dark text-ink px-3 py-1.5 text-[12px] font-extrabold shrink-0"
                   >
                     Settle
@@ -225,6 +226,7 @@
         <div class="flex gap-[11px]">
           <button
             type="button"
+            (click)="openSettle(null)"
             class="w-[52px] h-[52px] rounded-[16px] bg-surface border border-border-strong text-ink text-[18px] shrink-0"
             aria-label="Settle up"
           >
@@ -242,6 +244,17 @@
           [members]="g.members"
           (saved)="onExpenseSaved()"
           (closed)="showAddExpense.set(false)"
+        />
+      }
+
+      @if (showSettle()) {
+        <app-settle-sheet
+          [groupId]="g.id"
+          [transfers]="transfers()"
+          [myEmail]="myEmail()"
+          [initial]="settleInitial()"
+          (saved)="onSettled()"
+          (closed)="showSettle.set(false)"
         />
       }
     }

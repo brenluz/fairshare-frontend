@@ -9,6 +9,7 @@ import { serviceErrorMessage } from '../../shared/api-error';
 import { avatarColor, initials } from '../../shared/avatar';
 import { euro, isZero, signedEuro } from '../../shared/money';
 import { AddExpenseSheet } from './add-expense-sheet/add-expense-sheet';
+import { SettleSheet } from './settle-sheet/settle-sheet';
 
 interface ExpenseGroup {
   label: string;
@@ -27,7 +28,7 @@ function groupErrorMessage(status: number): string {
 
 @Component({
   selector: 'app-group-detail',
-  imports: [AddExpenseSheet],
+  imports: [AddExpenseSheet, SettleSheet],
   templateUrl: './group-detail.html',
 })
 export class GroupDetail {
@@ -47,7 +48,11 @@ export class GroupDetail {
   error = signal<string | null>(null);
   showAddExpense = signal(false);
 
-  private myEmail = computed(() => this.auth.currentUser()?.email ?? '');
+  // Settle sheet: closed when false; settleInitial pre-selects a debt to confirm.
+  showSettle = signal(false);
+  settleInitial = signal<SimplifiedTransfer | null>(null);
+
+  myEmail = computed(() => this.auth.currentUser()?.email ?? '');
 
   /** Total the group has spent — the header hero figure. */
   totalSpend = computed(() => this.expenses().reduce((sum, e) => sum + e.amount, 0));
@@ -155,5 +160,16 @@ export class GroupDetail {
   onExpenseSaved(): void {
     this.showAddExpense.set(false);
     this.load(); // refetch expenses + balances + simplified debts
+  }
+
+  /** Open the settle sheet: at the picker (null) or straight to confirm a debt. */
+  openSettle(transfer: SimplifiedTransfer | null): void {
+    this.settleInitial.set(transfer);
+    this.showSettle.set(true);
+  }
+
+  onSettled(): void {
+    this.showSettle.set(false);
+    this.load();
   }
 }

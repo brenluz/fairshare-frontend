@@ -1,0 +1,195 @@
+<div class="fixed inset-0 z-50 flex justify-center">
+  <div class="absolute inset-0 bg-black/40" (click)="close()"></div>
+
+  <div class="relative w-full max-w-[420px] h-full flex flex-col justify-end pointer-events-none">
+    <div class="relative bg-canvas rounded-t-[28px] shadow-sheet flex flex-col max-h-[92%] pointer-events-auto">
+      <div class="w-10 h-[5px] rounded-full bg-[#D6D4CC] mx-auto mt-3 mb-1 shrink-0"></div>
+
+      @if (step() === 'pick') {
+        <!-- Step 1: pick a suggested payment -->
+        <div class="flex items-center gap-3 px-[18px] py-2 shrink-0">
+          <div class="flex-1">
+            <h2 class="text-[17px] font-extrabold">Settle up</h2>
+            <p class="text-[12.5px] font-semibold text-muted mt-0.5">
+              Suggested payments to clear debts
+            </p>
+          </div>
+          <button
+            type="button"
+            (click)="close()"
+            class="w-[30px] h-[30px] rounded-full bg-chip text-muted-2 flex items-center justify-center text-[13px]"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-[18px] pt-2 flex flex-col gap-2.5">
+          @for (t of transfers(); track $index) {
+            <button
+              type="button"
+              (click)="pick(t)"
+              [disabled]="!involvesMe(t)"
+              class="w-full flex items-center gap-3 rounded-[16px] bg-surface p-3.5 text-left"
+              [class]="
+                isSelected(t)
+                  ? 'border-[1.5px] border-accent shadow-[0_4px_14px_rgba(90,80,230,.1)]'
+                  : 'border border-border' + (involvesMe(t) ? '' : ' opacity-60')
+              "
+            >
+              <div class="flex items-center gap-1.5 shrink-0">
+                <div
+                  class="w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-[12px] font-bold"
+                  [style.background]="avatarColor(t.from.email)"
+                >
+                  {{ initials(t.from.username) }}
+                </div>
+                <span class="text-[#B6B4AC] text-[15px]">→</span>
+                <div
+                  class="w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-[12px] font-bold"
+                  [style.background]="avatarColor(t.to.email)"
+                >
+                  {{ initials(t.to.username) }}
+                </div>
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="text-[14.5px] font-extrabold truncate">{{ label(t) }}</div>
+                <div class="text-[12px] font-semibold text-muted">
+                  {{ involvesMe(t) ? 'Clears this debt' : 'Not involving you' }}
+                </div>
+              </div>
+
+              <div class="text-[16px] font-extrabold tabular text-positive shrink-0">
+                {{ euro(t.amount) }}
+              </div>
+
+              @if (isSelected(t)) {
+                <div class="w-[22px] h-[22px] rounded-full bg-accent text-white flex items-center justify-center text-[12px] font-extrabold shrink-0">
+                  ✓
+                </div>
+              } @else {
+                <div class="w-[22px] h-[22px] rounded-full border-2 border-border-strong shrink-0"></div>
+              }
+            </button>
+          } @empty {
+            <p class="text-[14px] font-medium text-muted text-center mt-8">
+              Nothing to settle — you're all square.
+            </p>
+          }
+        </div>
+
+        <div class="px-[18px] pt-3 pb-6 shrink-0">
+          <button
+            type="button"
+            (click)="toConfirm()"
+            [disabled]="!selected()"
+            class="fs-btn-primary"
+          >
+            @if (selected()) {
+              Record payment · {{ euro(selected()!.amount) }}
+            } @else {
+              Select a payment
+            }
+          </button>
+        </div>
+      } @else {
+        <!-- Step 2: confirm -->
+        <div class="flex items-center gap-3 px-[18px] py-2 shrink-0">
+          <button
+            type="button"
+            (click)="backToPick()"
+            class="w-[30px] h-[30px] rounded-full bg-chip text-muted-2 flex items-center justify-center text-[16px]"
+            aria-label="Back"
+          >
+            ‹
+          </button>
+          <h2 class="flex-1 text-[17px] font-extrabold">Confirm payment</h2>
+          <button
+            type="button"
+            (click)="close()"
+            class="w-[30px] h-[30px] rounded-full bg-chip text-muted-2 flex items-center justify-center text-[13px]"
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+
+        @if (selected(); as t) {
+          <div class="flex-1 overflow-y-auto px-[18px] pt-3">
+            <!-- from → to visual -->
+            <div class="flex items-center justify-center gap-4 py-2">
+              <div class="flex flex-col items-center gap-1.5">
+                <div
+                  class="w-14 h-14 rounded-full flex items-center justify-center text-white text-[17px] font-bold"
+                  [style.background]="avatarColor(t.from.email)"
+                >
+                  {{ initials(t.from.username) }}
+                </div>
+                <span class="text-[13px] font-bold">
+                  {{ t.from.email === myEmail() ? 'You' : t.from.username }}
+                </span>
+              </div>
+              <span class="text-accent text-[22px]">→</span>
+              <div class="flex flex-col items-center gap-1.5">
+                <div
+                  class="w-14 h-14 rounded-full flex items-center justify-center text-white text-[17px] font-bold"
+                  [style.background]="avatarColor(t.to.email)"
+                >
+                  {{ initials(t.to.username) }}
+                </div>
+                <span class="text-[13px] font-bold">
+                  {{ t.to.email === myEmail() ? 'You' : t.to.username }}
+                </span>
+              </div>
+            </div>
+
+            <!-- editable amount -->
+            <div class="bg-ink-dark rounded-[20px] px-5 py-5 text-center mt-4">
+              <div class="text-[12.5px] font-semibold text-faint">{{ amountLabel() }}</div>
+              <div class="flex items-baseline justify-center gap-1 mt-1.5">
+                <span class="text-[24px] font-bold text-[#8F8D83]">€</span>
+                <input
+                  inputmode="decimal"
+                  [value]="amountText()"
+                  (input)="amountText.set($any($event.target).value)"
+                  class="w-[160px] bg-transparent border-0 outline-none text-[44px] font-extrabold text-canvas tabular text-center tracking-[-0.03em]"
+                />
+              </div>
+              @if (settlesInFull() && other(); as o) {
+                <div class="text-[12px] font-semibold text-[#8FBFA9] mt-2">
+                  Settles {{ o.username }}'s balance in full
+                </div>
+              } @else {
+                <div class="text-[12px] font-semibold text-faint mt-2">Partial payment</div>
+              }
+            </div>
+
+            <!-- meta -->
+            <div class="bg-surface border border-border rounded-[16px] mt-3.5 overflow-hidden">
+              <div class="flex items-center px-4 py-3">
+                <span class="flex-1 text-[13.5px] font-semibold text-muted-2">Date</span>
+                <span class="text-[14px] font-bold">Today</span>
+              </div>
+              <div class="h-px bg-divider mx-4"></div>
+              <div class="flex items-center px-4 py-3">
+                <span class="flex-1 text-[13.5px] font-semibold text-muted-2">Method</span>
+                <span class="text-[14px] font-bold">Cash / other</span>
+              </div>
+            </div>
+
+            @if (error()) {
+              <p class="fs-error mt-3">{{ error() }}</p>
+            }
+          </div>
+
+          <div class="px-[18px] pt-3 pb-6 shrink-0">
+            <button type="button" (click)="markPaid()" [disabled]="!canRecord()" class="fs-btn-primary">
+              {{ submitting() ? 'Recording…' : 'Mark as paid' }}
+            </button>
+          </div>
+        }
+      }
+    </div>
+  </div>
+</div>

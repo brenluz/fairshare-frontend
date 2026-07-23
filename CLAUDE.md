@@ -41,7 +41,7 @@ Expenses:
 Settlements:
 - `GET /api/groups/{id}/balances` → `[{ user: {id,username,email}, balance }]` (positive = owed money, negative = owes)
 - `GET /api/groups/{id}/simplify` → `[{ from, to, amount }]` (minimal transactions to settle up)
-- `POST /api/groups/{id}/settle` — body `{ payeeId, amount }` → records a payment
+- `POST /api/groups/{id}/settle` — body `{ payerId, payeeId, amount }` → records that payerId paid payeeId. The caller must be one of the two parties. Settlements reduce the computed balances.
 
 ### Planned frontend structure
 

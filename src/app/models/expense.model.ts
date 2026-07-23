@@ -27,8 +27,9 @@ export interface SimplifiedTransfer {
   amount: number;
 }
 
-/** POST /api/groups/{id}/settle */
+/** POST /api/groups/{id}/settle — records that payer paid payee. */
 export interface SettleRequest {
+  payerId: string;
   payeeId: string;
   amount: number;
 }
