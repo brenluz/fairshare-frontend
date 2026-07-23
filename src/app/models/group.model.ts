@@ -1,22 +1,24 @@
 // Matches the backend group/settlement contract (see CLAUDE.md).
 
+// Every id is a java.util.UUID on the backend, so it arrives as a JSON string.
+
 /** A user as embedded in group, expense and balance payloads. */
 export interface UserRef {
-  id: number;
+  id: string;
   username: string;
   email: string;
 }
 
 /** GET /api/groups — the list view. Note: no balance is returned here. */
 export interface GroupSummary {
-  id: number;
+  id: string;
   name: string;
   memberCount: number;
 }
 
 /** GET /api/groups/{id} */
 export interface GroupDetail {
-  id: number;
+  id: string;
   name: string;
   description: string;
   createdAt: string;

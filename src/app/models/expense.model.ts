@@ -11,7 +11,7 @@ export interface ExpenseSplit {
 
 /** GET /api/groups/{id}/expenses */
 export interface Expense {
-  id: number;
+  id: string;
   description: string;
   amount: number;
   splitType: SplitType;
@@ -29,6 +29,23 @@ export interface SimplifiedTransfer {
 
 /** POST /api/groups/{id}/settle */
 export interface SettleRequest {
-  payeeId: number;
+  payeeId: string;
   amount: number;
+}
+
+/** The recorded payment returned by POST /api/groups/{id}/settle. */
+export interface Settlement {
+  id: string;
+  payer: UserRef;
+  payee: UserRef;
+  amount: number;
+  settledAt: string;
+}
+
+/** POST /api/groups/{id}/expenses — splits is null for EQUAL. */
+export interface AddExpenseRequest {
+  description: string;
+  amount: number;
+  splitType: SplitType;
+  splits: { userId: string; value: number }[] | null;
 }

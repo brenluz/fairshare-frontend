@@ -5,11 +5,14 @@ import { AuthService } from '../../services/auth.service';
 import { serviceErrorMessage } from '../../shared/api-error';
 import { Logo } from '../../shared/logo/logo';
 
-/** A taken email/username is the one failure the user can act on. */
+/**
+ * The backend maps UserAlreadyExistsException to 409; @Valid failures come back
+ * as 400. Everything else is service trouble.
+ */
 function registerErrorMessage(status: number): string {
-  return status === 409 || status === 400
-    ? 'That email or username is already taken.'
-    : serviceErrorMessage(status);
+  if (status === 409) return 'That email is already registered.';
+  if (status === 400) return 'Please check your details and try again.';
+  return serviceErrorMessage(status);
 }
 
 @Component({

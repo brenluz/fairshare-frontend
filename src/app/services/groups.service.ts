@@ -3,7 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
 import { API_BASE } from '../shared/api';
 import { Balance, GroupDetail, GroupListItem, GroupSummary } from '../models/group.model';
-import { Expense, SettleRequest, SimplifiedTransfer } from '../models/expense.model';
+import {
+  AddExpenseRequest,
+  Expense,
+  SettleRequest,
+  Settlement,
+  SimplifiedTransfer,
+} from '../models/expense.model';
 import { AuthService } from './auth.service';
 
 @Injectable({ providedIn: 'root' })
@@ -16,11 +22,11 @@ export class GroupsService {
     return this.http.get<GroupSummary[]>(this.baseUrl);
   }
 
-  detail(id: number): Observable<GroupDetail> {
+  detail(id: string): Observable<GroupDetail> {
     return this.http.get<GroupDetail>(`${this.baseUrl}/${id}`);
   }
 
-  balances(id: number): Observable<Balance[]> {
+  balances(id: string): Observable<Balance[]> {
     return this.http.get<Balance[]>(`${this.baseUrl}/${id}/balances`);
   }
 
@@ -28,17 +34,21 @@ export class GroupsService {
     return this.http.post<GroupDetail>(this.baseUrl, body);
   }
 
-  expenses(id: number): Observable<Expense[]> {
+  expenses(id: string): Observable<Expense[]> {
     return this.http.get<Expense[]>(`${this.baseUrl}/${id}/expenses`);
   }
 
+  addExpense(id: string, body: AddExpenseRequest): Observable<Expense> {
+    return this.http.post<Expense>(`${this.baseUrl}/${id}/expenses`, body);
+  }
+
   /** The minimal set of transfers that clears every debt in the group. */
-  simplify(id: number): Observable<SimplifiedTransfer[]> {
+  simplify(id: string): Observable<SimplifiedTransfer[]> {
     return this.http.get<SimplifiedTransfer[]>(`${this.baseUrl}/${id}/simplify`);
   }
 
-  settle(id: number, body: SettleRequest): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/${id}/settle`, body);
+  settle(id: string, body: SettleRequest): Observable<Settlement> {
+    return this.http.post<Settlement>(`${this.baseUrl}/${id}/settle`, body);
   }
 
   /**

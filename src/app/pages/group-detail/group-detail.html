@@ -230,9 +230,20 @@
           >
             ⇄
           </button>
-          <button type="button" class="fs-btn-primary flex-1">+ Add expense</button>
+          <button type="button" (click)="showAddExpense.set(true)" class="fs-btn-primary flex-1">
+            + Add expense
+          </button>
         </div>
       </div>
+
+      @if (showAddExpense()) {
+        <app-add-expense-sheet
+          [groupId]="g.id"
+          [members]="g.members"
+          (saved)="onExpenseSaved()"
+          (closed)="showAddExpense.set(false)"
+        />
+      }
     }
   </div>
 </div>

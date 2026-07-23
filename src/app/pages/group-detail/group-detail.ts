@@ -8,14 +8,26 @@ import { Expense, SimplifiedTransfer } from '../../models/expense.model';
 import { serviceErrorMessage } from '../../shared/api-error';
 import { avatarColor, initials } from '../../shared/avatar';
 import { euro, isZero, signedEuro } from '../../shared/money';
+import { AddExpenseSheet } from './add-expense-sheet/add-expense-sheet';
 
 interface ExpenseGroup {
   label: string;
   items: Expense[];
 }
 
+/**
+ * The backend distinguishes a missing group (404) from one the user isn't a
+ * member of (403); both are worth saying plainly rather than "went wrong".
+ */
+function groupErrorMessage(status: number): string {
+  if (status === 404) return 'This group no longer exists.';
+  if (status === 403) return 'You don’t have access to this group.';
+  return serviceErrorMessage(status);
+}
+
 @Component({
   selector: 'app-group-detail',
+  imports: [AddExpenseSheet],
   templateUrl: './group-detail.html',
 })
 export class GroupDetail {
@@ -24,7 +36,8 @@ export class GroupDetail {
   private groupsApi = inject(GroupsService);
   private auth = inject(AuthService);
 
-  private groupId = Number(this.route.snapshot.paramMap.get('id'));
+  // Group ids are UUIDs — keep them as strings (Number() would give NaN).
+  private groupId = this.route.snapshot.paramMap.get('id') ?? '';
 
   group = signal<Group | null>(null);
   expenses = signal<Expense[]>([]);
@@ -32,6 +45,7 @@ export class GroupDetail {
   transfers = signal<SimplifiedTransfer[]>([]);
   loading = signal(true);
   error = signal<string | null>(null);
+  showAddExpense = signal(false);
 
   private myEmail = computed(() => this.auth.currentUser()?.email ?? '');
 
@@ -81,7 +95,7 @@ export class GroupDetail {
         this.loading.set(false);
       },
       error: (err) => {
-        this.error.set(serviceErrorMessage(err.status));
+        this.error.set(groupErrorMessage(err.status));
         this.loading.set(false);
       },
     });
@@ -136,5 +150,10 @@ export class GroupDetail {
 
   back(): void {
     this.router.navigateByUrl('/groups');
+  }
+
+  onExpenseSaved(): void {
+    this.showAddExpense.set(false);
+    this.load(); // refetch expenses + balances + simplified debts
   }
 }

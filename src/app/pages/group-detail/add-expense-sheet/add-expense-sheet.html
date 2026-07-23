@@ -1,0 +1,160 @@
+<!-- Scrim + centered mobile column -->
+<div class="fixed inset-0 z-50 flex justify-center">
+  <div class="absolute inset-0 bg-black/40" (click)="close()"></div>
+
+  <div class="relative w-full max-w-[420px] h-full flex flex-col justify-end pointer-events-none">
+    <div
+      class="relative bg-canvas rounded-t-[28px] shadow-sheet flex flex-col max-h-[92%] pointer-events-auto"
+    >
+      <!-- Grabber -->
+      <div class="w-10 h-[5px] rounded-full bg-[#D6D4CC] mx-auto mt-3 mb-1 shrink-0"></div>
+
+      <!-- Header -->
+      <div class="flex items-center gap-3 px-[18px] py-2 shrink-0">
+        <h2 class="flex-1 text-[17px] font-extrabold">New expense</h2>
+        <button
+          type="button"
+          (click)="close()"
+          class="w-[30px] h-[30px] rounded-full bg-chip text-muted-2 flex items-center justify-center text-[13px]"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Scrollable body -->
+      <div class="flex-1 overflow-y-auto px-[18px] pt-2">
+        <!-- Amount + Description -->
+        <div class="flex gap-2.5">
+          <div class="w-[140px] shrink-0 bg-ink-dark rounded-[16px] px-4 py-3">
+            <div class="text-[11px] font-semibold text-faint">Amount</div>
+            <div class="flex items-baseline gap-0.5 mt-1">
+              <span class="text-[18px] font-bold text-[#8F8D83]">€</span>
+              <input
+                inputmode="decimal"
+                [value]="amountText()"
+                (input)="amountText.set($any($event.target).value)"
+                placeholder="0.00"
+                class="w-full min-w-0 bg-transparent border-0 outline-none text-[24px] font-extrabold text-canvas tabular placeholder:text-[#5c5b54]"
+              />
+            </div>
+          </div>
+
+          <div class="flex-1 bg-surface border border-border rounded-[16px] px-4 py-3 flex flex-col justify-center focus-within:border-[1.5px] focus-within:border-accent">
+            <label class="text-[11px] font-semibold text-muted">Description</label>
+            <input
+              [value]="description()"
+              (input)="description.set($any($event.target).value)"
+              placeholder="Dinner, taxi…"
+              class="w-full bg-transparent border-0 outline-none text-[15px] font-semibold text-ink mt-1 placeholder:text-faint"
+            />
+          </div>
+        </div>
+
+        <!-- Split-type segmented control -->
+        <div class="flex gap-1.5 bg-chip rounded-[14px] p-1 mt-4">
+          @for (opt of [{ id: 'EQUAL', label: 'Equal' }, { id: 'PERCENTAGE', label: 'Percentage' }, { id: 'EXACT', label: 'Exact' }]; track opt.id) {
+            <button
+              type="button"
+              (click)="setSplitType($any(opt.id))"
+              class="flex-1 text-center py-2 rounded-[11px] text-[13px]"
+              [class]="
+                splitType() === opt.id
+                  ? 'bg-accent text-white font-extrabold shadow-[0_2px_6px_rgba(0,0,0,.12)]'
+                  : 'text-muted-2 font-bold'
+              "
+            >
+              {{ opt.label }}
+            </button>
+          }
+        </div>
+
+        <!-- Per-member rows -->
+        <div class="mt-4 flex flex-col gap-2">
+          @for (m of members(); track m.id) {
+            <div class="flex items-center gap-3">
+              <div
+                class="w-[34px] h-[34px] rounded-full flex items-center justify-center text-white text-[11.5px] font-bold shrink-0"
+                [style.background]="avatarColor(m.email)"
+              >
+                {{ initials(m.username) }}
+              </div>
+              <span class="flex-1 text-[14px] font-bold truncate">{{ m.username }}</span>
+
+              @if (isEqual()) {
+                <span class="text-[15px] font-extrabold text-muted tabular">
+                  {{ euro(equalShare()) }}
+                </span>
+              } @else {
+                <div
+                  class="flex items-center bg-surface border border-border rounded-[11px] px-3 h-[38px] w-[104px] focus-within:border-[1.5px] focus-within:border-accent"
+                >
+                  @if (isExact()) {
+                    <span class="text-[13px] font-bold text-muted mr-1">€</span>
+                  }
+                  <input
+                    inputmode="decimal"
+                    [value]="valueText(m.id)"
+                    (input)="onValue(m.id, $event)"
+                    placeholder="0"
+                    class="w-full min-w-0 bg-transparent border-0 outline-none text-[15px] font-extrabold text-ink text-right tabular placeholder:text-faint"
+                  />
+                  @if (isPercentage()) {
+                    <span class="text-[13px] font-bold text-muted ml-1">%</span>
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Live tracker (not shown for EQUAL) -->
+        @if (!isEqual()) {
+          <div
+            class="flex items-center gap-2.5 rounded-[14px] px-4 py-3 mt-4 border"
+            [class]="
+              balanced()
+                ? 'bg-positive-soft-bg border-positive-soft-border'
+                : 'bg-[#FBEAE7] border-[#F1D3CE]'
+            "
+          >
+            <div
+              class="w-[22px] h-[22px] rounded-full flex items-center justify-center text-white text-[12px] font-extrabold shrink-0"
+              [style.background]="balanced() ? 'var(--color-positive)' : 'var(--color-negative)'"
+            >
+              {{ balanced() ? '✓' : '!' }}
+            </div>
+            <div class="flex-1 min-w-0">
+              @if (isPercentage()) {
+                <div class="text-[13px] font-bold" [class]="balanced() ? 'text-positive' : 'text-negative'">
+                  {{ assigned() }}% of 100% assigned
+                </div>
+                <div class="text-[12px] font-semibold text-muted-2">
+                  {{ remaining() > 0 ? remaining() + '% left to assign' : (remaining() < 0 ? (-remaining()) + '% over' : 'All assigned') }}
+                </div>
+              } @else {
+                <div class="text-[13px] font-bold" [class]="balanced() ? 'text-positive' : 'text-negative'">
+                  {{ euro(assigned()) }} of {{ euro(amount()) }} assigned
+                </div>
+                <div class="text-[12px] font-semibold text-muted-2">
+                  {{ remaining() > 0 ? euro(remaining()) + ' left to assign' : (remaining() < 0 ? euro(-remaining()) + ' over' : 'All assigned') }}
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        @if (error()) {
+          <p class="fs-error mt-3">{{ error() }}</p>
+        }
+      </div>
+
+      <!-- Sticky save -->
+      <div class="px-[18px] pt-3 pb-6 shrink-0">
+        <button type="button" (click)="save()" [disabled]="!canSave()" class="fs-btn-primary">
+          {{ submitting() ? 'Saving…' : 'Save expense' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
