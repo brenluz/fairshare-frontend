@@ -10,6 +10,7 @@ import { avatarColor, initials } from '../../shared/avatar';
 import { euro, isZero, signedEuro } from '../../shared/money';
 import { AddExpenseSheet } from './add-expense-sheet/add-expense-sheet';
 import { SettleSheet } from './settle-sheet/settle-sheet';
+import { ShareInviteSheet } from './share-invite-sheet/share-invite-sheet';
 
 interface ExpenseGroup {
   label: string;
@@ -28,7 +29,7 @@ function groupErrorMessage(status: number): string {
 
 @Component({
   selector: 'app-group-detail',
-  imports: [AddExpenseSheet, SettleSheet],
+  imports: [AddExpenseSheet, SettleSheet, ShareInviteSheet],
   templateUrl: './group-detail.html',
 })
 export class GroupDetail {
@@ -51,6 +52,7 @@ export class GroupDetail {
   // Settle sheet: closed when false; settleInitial pre-selects a debt to confirm.
   showSettle = signal(false);
   settleInitial = signal<SimplifiedTransfer | null>(null);
+  showShare = signal(false);
 
   myEmail = computed(() => this.auth.currentUser()?.email ?? '');
 

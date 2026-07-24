@@ -50,6 +50,11 @@ export class GroupsService {
     return this.http.post<GroupDetail>(`${this.baseUrl}/join/${token}`, {});
   }
 
+  /** Members-only: the invite link as plain text (a backend join URL). */
+  invite(id: string): Observable<string> {
+    return this.http.get(`${this.baseUrl}/${id}/invite`, { responseType: 'text' });
+  }
+
   expenses(id: string): Observable<Expense[]> {
     return this.http.get<Expense[]>(`${this.baseUrl}/${id}/expenses`);
   }

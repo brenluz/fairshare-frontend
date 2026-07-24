@@ -24,8 +24,9 @@
           <h1 class="flex-1 min-w-0 text-[17px] font-extrabold text-canvas truncate">{{ g.name }}</h1>
           <button
             type="button"
+            (click)="showShare.set(true)"
             class="w-9 h-9 rounded-full bg-white/10 text-canvas flex items-center justify-center text-[15px] shrink-0"
-            aria-label="More options"
+            aria-label="Share invite link"
           >
             ⋯
           </button>
@@ -255,6 +256,14 @@
           [initial]="settleInitial()"
           (saved)="onSettled()"
           (closed)="showSettle.set(false)"
+        />
+      }
+
+      @if (showShare()) {
+        <app-share-invite-sheet
+          [groupId]="g.id"
+          [groupName]="g.name"
+          (closed)="showShare.set(false)"
         />
       }
     }
