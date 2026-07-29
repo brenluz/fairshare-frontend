@@ -188,7 +188,13 @@
             </div>
 
             @for (e of bucket.items; track e.id) {
-              <div class="flex items-center gap-3 py-3 border-b border-divider last:border-b-0">
+              <div
+                class="flex items-center gap-3 py-3 border-b border-divider last:border-b-0"
+                [class.cursor-pointer]="canSettleExpense(e)"
+                (click)="settleExpense(e)"
+                [attr.role]="canSettleExpense(e) ? 'button' : null"
+                [attr.aria-label]="canSettleExpense(e) ? 'Settle your share of ' + e.description : null"
+              >
                 <!-- Date chip -->
                 <div class="w-11 h-11 rounded-[13px] bg-chip flex flex-col items-center justify-center shrink-0">
                   <span class="text-[9.5px] font-bold text-muted-2 uppercase leading-none">
@@ -216,6 +222,10 @@
                     </div>
                   }
                 </div>
+
+                @if (canSettleExpense(e)) {
+                  <span class="text-muted-2 text-[18px] leading-none shrink-0" aria-hidden="true">›</span>
+                }
               </div>
             }
           </div>

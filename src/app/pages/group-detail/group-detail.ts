@@ -122,6 +122,28 @@ export class GroupDetail {
     return paid - owed;
   }
 
+  /** The current user's split on an expense, if they are one of its participants. */
+  private mySplit(expense: Expense) {
+    return expense.splits.find((s) => s.user.email === this.myEmail());
+  }
+
+  /**
+   * You can settle a single expense when you didn't pay it but still owe a
+   * share of it — i.e. there's money to hand back to whoever covered it.
+   */
+  canSettleExpense(expense: Expense): boolean {
+    const mine = this.mySplit(expense);
+    return expense.paidBy.email !== this.myEmail() && !!mine && !isZero(mine.owedAmount);
+  }
+
+  /** Settle just your share of one expense, paying the person who covered it. */
+  settleExpense(expense: Expense): void {
+    const mine = this.mySplit(expense);
+    if (!this.canSettleExpense(expense) || !mine) return;
+    // Reuse the settle sheet: from = you, to = the payer, amount = your share.
+    this.openSettle({ from: mine.user, to: expense.paidBy, amount: mine.owedAmount });
+  }
+
   transferLabel(t: SimplifiedTransfer): string {
     if (this.isMe(t.to.email)) return `${t.from.username} pays you`;
     if (this.isMe(t.from.email)) return `You pay ${t.to.username}`;
