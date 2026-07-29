@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, input, OnInit, output, signal } from '@angular/core';
 import { GroupsService } from '../../../services/groups.service';
 import { SimplifiedTransfer } from '../../../models/expense.model';
 import { serviceErrorMessage } from '../../../shared/api-error';
@@ -9,7 +9,7 @@ import { euro, isZero } from '../../../shared/money';
   selector: 'app-settle-sheet',
   templateUrl: './settle-sheet.html',
 })
-export class SettleSheet {
+export class SettleSheet implements OnInit {
   private groupsApi = inject(GroupsService);
 
   groupId = input.required<string>();
@@ -42,8 +42,10 @@ export class SettleSheet {
   initials = initials;
   euro = euro;
 
-  constructor() {
+  ngOnInit(): void {
     // Preselect: the passed-in transfer, else the first debt involving the user.
+    // This must run in ngOnInit, not the constructor: required inputs like
+    // transfers() (read via settleable()) aren't bound until after construction.
     const preset = this.initial();
     if (preset) {
       this.selected.set(preset);
