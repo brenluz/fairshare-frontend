@@ -1,50 +1,53 @@
-<div class="fixed inset-0 z-50 flex justify-center">
+<div class="fixed inset-0 z-50 flex items-center justify-center px-6">
   <div class="absolute inset-0 bg-black/40" (click)="close()"></div>
 
-  <div class="relative w-full max-w-[420px] h-full flex flex-col justify-end pointer-events-none">
-    <div class="relative bg-canvas rounded-t-[28px] shadow-sheet flex flex-col pointer-events-auto">
-      <div class="w-10 h-[5px] rounded-full bg-[#D6D4CC] mx-auto mt-3 mb-1 shrink-0"></div>
+  <div class="relative w-full max-w-[360px] bg-canvas rounded-[24px] shadow-sheet overflow-hidden">
+    <div class="flex items-center gap-3 px-[18px] pt-4 pb-2">
+      <h2 class="flex-1 text-[17px] font-extrabold">Share invite</h2>
+      <button
+        type="button"
+        (click)="close()"
+        class="w-[30px] h-[30px] rounded-full bg-chip text-muted-2 flex items-center justify-center text-[13px]"
+        aria-label="Close"
+      >
+        ✕
+      </button>
+    </div>
 
-      <div class="flex items-center gap-3 px-[18px] py-2 shrink-0">
-        <h2 class="flex-1 text-[17px] font-extrabold">Share invite</h2>
-        <button
-          type="button"
-          (click)="close()"
-          class="w-[30px] h-[30px] rounded-full bg-chip text-muted-2 flex items-center justify-center text-[13px]"
-          aria-label="Close"
-        >
-          ✕
-        </button>
-      </div>
+    <div class="px-[18px] pt-2 pb-6">
+      <p class="text-[14px] font-medium text-muted leading-relaxed">
+        Anyone with this link can join <b class="text-ink">{{ groupName() }}</b>.
+      </p>
 
-      <div class="px-[18px] pt-3 pb-6">
-        <p class="text-[14px] font-medium text-muted leading-relaxed">
-          Anyone with this link can join <b class="text-ink">{{ groupName() }}</b>.
-        </p>
+      @if (loading()) {
+        <p class="text-[14px] font-medium text-muted mt-5 text-center">Getting your link…</p>
+      } @else if (error() && !inviteUrl()) {
+        <p class="fs-error mt-4">{{ error() }}</p>
+      } @else if (inviteUrl(); as url) {
+        <div class="flex items-center gap-2 bg-surface border border-border rounded-[15px] px-4 py-3 mt-4">
+          <input
+            [value]="url"
+            readonly
+            (focus)="$any($event.target).select()"
+            class="flex-1 min-w-0 bg-transparent border-0 outline-none text-[13.5px] font-semibold text-muted-2 truncate"
+          />
+        </div>
 
-        @if (loading()) {
-          <p class="text-[14px] font-medium text-muted mt-5 text-center">Getting your link…</p>
-        } @else if (error() && !inviteUrl()) {
-          <p class="fs-error mt-4">{{ error() }}</p>
-        } @else if (inviteUrl(); as url) {
-          <div class="flex items-center gap-2 bg-surface border border-border rounded-[15px] px-4 py-3 mt-4">
-            <input
-              [value]="url"
-              readonly
-              (focus)="$any($event.target).select()"
-              class="flex-1 min-w-0 bg-transparent border-0 outline-none text-[13.5px] font-semibold text-muted-2 truncate"
-            />
-          </div>
+        @if (error()) {
+          <p class="fs-error mt-2">{{ error() }}</p>
+        }
 
-          @if (error()) {
-            <p class="fs-error mt-2">{{ error() }}</p>
-          }
-
+        @if (canShare()) {
+          <button type="button" (click)="share()" class="fs-btn-primary mt-4">Share…</button>
+          <button type="button" (click)="copy()" class="fs-btn-secondary mt-2.5">
+            {{ copied() ? 'Copied ✓' : 'Copy link' }}
+          </button>
+        } @else {
           <button type="button" (click)="copy()" class="fs-btn-primary mt-4">
             {{ copied() ? 'Copied ✓' : 'Copy link' }}
           </button>
         }
-      </div>
+      }
     </div>
   </div>
 </div>

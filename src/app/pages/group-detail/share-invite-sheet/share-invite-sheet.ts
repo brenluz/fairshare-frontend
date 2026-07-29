@@ -21,8 +21,12 @@ export class ShareInviteSheet implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   copied = signal(false);
+  /** Whether the device has the native share sheet (Web Share API). */
+  canShare = signal(false);
 
   ngOnInit(): void {
+    this.canShare.set(typeof navigator !== 'undefined' && typeof navigator.share === 'function');
+
     // The backend returns a join URL; we only need its token, then rebuild a
     // link pointing at this app's join route so it opens the join screen.
     this.groupsApi.invite(this.groupId()).subscribe({
@@ -36,6 +40,22 @@ export class ShareInviteSheet implements OnInit {
         this.loading.set(false);
       },
     });
+  }
+
+  /** Open the device's native share sheet (the one other apps use). */
+  async share(): Promise<void> {
+    const url = this.inviteUrl();
+    if (!url) return;
+    try {
+      await navigator.share({
+        title: `Join ${this.groupName()} on FairShare`,
+        text: `Join “${this.groupName()}” on FairShare to split expenses together.`,
+        url,
+      });
+    } catch {
+      // The user dismissing the share sheet rejects the promise — that's not an
+      // error worth surfacing. Copy link remains available as a fallback.
+    }
   }
 
   async copy(): Promise<void> {
