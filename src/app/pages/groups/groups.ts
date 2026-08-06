@@ -2,26 +2,33 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { GroupsService } from '../../services/groups.service';
+import { NotificationsService } from '../../services/notifications.service';
 import { GroupListItem } from '../../models/group.model';
 import { serviceErrorMessage } from '../../shared/api-error';
 import { avatarGradient, initial, initials } from '../../shared/avatar';
 import { isZero, signedEuro } from '../../shared/money';
 import { CreateGroupSheet } from './create-group-sheet/create-group-sheet';
 import { JoinLinkSheet } from './join-link-sheet/join-link-sheet';
+import { NotificationsPanel } from './notifications-panel/notifications-panel';
 
 type Filter = 'all' | 'active' | 'settled';
 
 @Component({
   selector: 'app-groups',
-  imports: [CreateGroupSheet, JoinLinkSheet],
+  imports: [CreateGroupSheet, JoinLinkSheet, NotificationsPanel],
   templateUrl: './groups.html',
 })
 export class Groups {
   private auth = inject(AuthService);
   private groupsApi = inject(GroupsService);
+  private notifications = inject(NotificationsService);
   private router = inject(Router);
 
   user = this.auth.currentUser;
+
+  /** Unread notification count for the header bell badge. */
+  unread = this.notifications.unread;
+  showNotifications = signal(false);
 
   groups = signal<GroupListItem[]>([]);
   loading = signal(true);
@@ -56,6 +63,13 @@ export class Groups {
 
   constructor() {
     this.load();
+    this.notifications.refreshUnread();
+  }
+
+  /** Reopen closes the panel and refreshes the badge (it was marked read). */
+  closeNotifications(): void {
+    this.showNotifications.set(false);
+    this.notifications.refreshUnread();
   }
 
   load(): void {

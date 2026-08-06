@@ -9,6 +9,22 @@
       </div>
       <button
         type="button"
+        (click)="showNotifications.set(true)"
+        title="Activity"
+        aria-label="Activity"
+        class="relative w-[38px] h-[38px] rounded-full bg-white/10 text-canvas flex items-center justify-center text-[16px] shrink-0"
+      >
+        🔔
+        @if (unread() > 0) {
+          <span
+            class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-negative text-white text-[10px] font-extrabold flex items-center justify-center border-2 border-ink-dark"
+          >
+            {{ unread() > 9 ? '9+' : unread() }}
+          </span>
+        }
+      </button>
+      <button
+        type="button"
         (click)="logout()"
         title="Log out"
         class="w-[38px] h-[38px] rounded-full bg-accent text-white flex items-center justify-center text-[13px] font-bold shrink-0"
@@ -150,6 +166,10 @@
 
     @if (showJoinLink()) {
       <app-join-link-sheet (submitted)="onJoinToken($event)" (closed)="showJoinLink.set(false)" />
+    }
+
+    @if (showNotifications()) {
+      <app-notifications-panel (closed)="closeNotifications()" />
     }
   </div>
 </div>

@@ -1,0 +1,57 @@
+<div class="fixed inset-0 z-50 flex justify-center">
+  <div class="absolute inset-0 bg-black/40" (click)="close()"></div>
+
+  <div class="relative w-full max-w-[420px] h-full flex flex-col justify-end pointer-events-none">
+    <div class="relative bg-canvas rounded-t-[28px] shadow-sheet flex flex-col max-h-[85%] pointer-events-auto">
+      <div class="w-10 h-[5px] rounded-full bg-[#D6D4CC] mx-auto mt-3 mb-1 shrink-0"></div>
+
+      <div class="flex items-center gap-3 px-[18px] py-2 shrink-0">
+        <h2 class="flex-1 text-[17px] font-extrabold">Activity</h2>
+        <button
+          type="button"
+          (click)="close()"
+          class="w-[30px] h-[30px] rounded-full bg-chip text-muted-2 flex items-center justify-center text-[13px]"
+          aria-label="Close"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto px-[18px] pt-2 pb-6">
+        @if (loading()) {
+          <p class="text-[14px] font-medium text-muted mt-8 text-center">Loading…</p>
+        } @else if (error()) {
+          <p class="fs-error mt-4">{{ error() }}</p>
+        } @else if (items().length === 0) {
+          <p class="text-[14px] font-medium text-muted text-center mt-10">
+            No activity yet. You'll see updates here when someone adds an expense or settles up.
+          </p>
+        } @else {
+          @for (n of items(); track n.id) {
+            <div class="flex items-start gap-3 py-3 border-b border-divider last:border-b-0">
+              <div
+                class="w-9 h-9 rounded-full flex items-center justify-center text-[15px] font-extrabold shrink-0"
+                [class]="
+                  n.type === 'SETTLEMENT_RECORDED'
+                    ? 'bg-positive-soft-bg text-positive'
+                    : 'bg-chip text-muted-2'
+                "
+              >
+                {{ icon(n.type) }}
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="text-[14px] font-semibold leading-snug">{{ n.message }}</div>
+                <div class="text-[12px] font-semibold text-muted mt-0.5">{{ n.groupName }}</div>
+              </div>
+
+              <span class="text-[11.5px] font-semibold text-muted-2 shrink-0 mt-0.5">
+                {{ ago(n.createdAt) }}
+              </span>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  </div>
+</div>
